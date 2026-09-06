@@ -49,6 +49,10 @@ async function gunzipFallback(bytes){
   }
   return new TextDecoder().decode(globalThis.fflate.gunzipSync(bytes));
 }
+function injectAppCreator24Referral(html){
+  const patch=`<script>(()=>{const TARGET='go:ZORYVO';function apply(){const node=document.querySelector('[data-task="ad"],.appcreator-referral');if(!node)return;if(node.tagName==='A'){node.setAttribute('href',TARGET);node.removeAttribute('data-task');node.setAttribute('data-appcreator-referral',TARGET);node.classList.add('appcreator-referral');node.textContent='Ver';return}const a=document.createElement('a');a.className=(node.className||'btn primary')+' appcreator-referral';a.setAttribute('href',TARGET);a.setAttribute('data-appcreator-referral',TARGET);a.setAttribute('aria-label','Ver anuncio en AppCreator24');a.textContent='Ver';node.replaceWith(a)}const observer=new MutationObserver(apply);observer.observe(document.documentElement,{childList:true,subtree:true});document.addEventListener('DOMContentLoaded',apply,{once:true});queueMicrotask(apply)})();</scr`+`ipt>`;
+  return html.replace('</body>',patch+'</body>');
+}
 async function boot(){
   error.style.display='none';retry.style.display='none';bar.style.display='block';
   status.textContent='Cargando ZORYVO…';
@@ -62,6 +66,7 @@ async function boot(){
     try{html=await gunzipNative(bytes)}catch(e){html=await gunzipFallback(bytes)}
     if(!html.includes('<!doctype html>')&&!html.includes('<!DOCTYPE html>'))throw new Error('El documento reconstruido no es HTML válido');
     if(!html.includes('ZORYVO')||!html.includes("const APP_VERSION='4.0.3'"))throw new Error('La versión publicada no coincide con ZORYVO V4.0.3');
+    html=injectAppCreator24Referral(html);
     status.textContent='Abriendo ZORYVO…';
     document.open();document.write(html);document.close();
   }catch(e){
