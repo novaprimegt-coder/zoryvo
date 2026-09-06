@@ -1,83 +1,55 @@
 <!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#05070b">
-<title>ZORYVO</title>
-<style>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#05070b"><title>ZORYVO</title><style>
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#05070b;color:#eef7ff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}body{min-height:100vh;display:grid;place-items:center}.boot{width:min(88vw,420px);text-align:center;padding:28px}.mark{width:70px;height:70px;margin:0 auto 18px;border-radius:24px;display:grid;place-items:center;background:linear-gradient(145deg,#10d8ff,#436fff);box-shadow:0 0 55px #19d8ff33;font-weight:1000;font-size:26px;color:#031017}.name{font-size:24px;font-weight:900;letter-spacing:.08em}.sub{margin-top:8px;color:#8fa0b5;font-size:13px;line-height:1.5}.bar{height:5px;margin-top:22px;border-radius:99px;overflow:hidden;background:#13202f}.bar i{display:block;width:35%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#19d8ff,#62eaff);animation:move 1.05s ease-in-out infinite}.error{display:none;margin-top:18px;padding:14px;border:1px solid #56303b;background:#1b0f14;border-radius:16px;color:#ffc0cb;font-size:12px;line-height:1.5}.retry{display:none;margin:14px auto 0;border:0;border-radius:13px;padding:11px 18px;font:inherit;font-weight:800;background:#19d8ff;color:#031017;cursor:pointer}@keyframes move{0%{transform:translateX(-110%)}50%{transform:translateX(150%)}100%{transform:translateX(330%)}}
-</style>
-</head>
-<body>
-<main class="boot" id="boot">
-  <div class="mark">Z</div>
-  <div class="name">ZORYVO</div>
-  <div class="sub" id="status">Preparando tu experiencia…</div>
-  <div class="bar" id="bar"><i></i></div>
-  <div class="error" id="error"></div>
-  <button class="retry" id="retry" type="button">Reintentar</button>
-</main>
-<script>
-(()=>{
+</style></head><body><main class="boot" id="boot"><div class="mark">Z</div><div class="name">ZORYVO</div><div class="sub" id="status">Iniciando ZORYVO…</div><div class="bar" id="bar"><i></i></div><div class="error" id="error"></div><button class="retry" id="retry" type="button">Reintentar</button></main><script>
 'use strict';
-const PART_COUNT=14;
-const status=document.getElementById('status');
-const bar=document.getElementById('bar');
-const error=document.getElementById('error');
-const retry=document.getElementById('retry');
-const paths=Array.from({length:PART_COUNT},(_,i)=>`parts/p${String(i).padStart(2,'0')}.txt`);
-function fromBase64(s){
-  const raw=atob(s.replace(/\s+/g,''));
-  const out=new Uint8Array(raw.length);
-  for(let i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i);
-  return out;
-}
-async function gunzipNative(bytes){
-  if(typeof DecompressionStream!=='function')throw new Error('NO_NATIVE_GZIP');
-  const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-  return await new Response(stream).text();
-}
-async function gunzipFallback(bytes){
-  if(!globalThis.fflate){
-    await new Promise((resolve,reject)=>{
-      const s=document.createElement('script');
-      s.src='https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js';
-      s.onload=resolve;s.onerror=()=>reject(new Error('No se pudo cargar el descompresor de compatibilidad'));
-      document.head.appendChild(s);
-    });
-  }
-  return new TextDecoder().decode(globalThis.fflate.gunzipSync(bytes));
-}
-function injectAppCreator24Referral(html){
-  const patch=`<script>(()=>{const TARGET='go:ZORYVO';function apply(){const node=document.querySelector('[data-task="ad"],.appcreator-referral');if(!node)return;if(node.tagName==='A'){node.setAttribute('href',TARGET);node.removeAttribute('data-task');node.setAttribute('data-appcreator-referral',TARGET);node.classList.add('appcreator-referral');node.textContent='Ver';return}const a=document.createElement('a');a.className=(node.className||'btn primary')+' appcreator-referral';a.setAttribute('href',TARGET);a.setAttribute('data-appcreator-referral',TARGET);a.setAttribute('aria-label','Ver anuncio en AppCreator24');a.textContent='Ver';node.replaceWith(a)}const observer=new MutationObserver(apply);observer.observe(document.documentElement,{childList:true,subtree:true});document.addEventListener('DOMContentLoaded',apply,{once:true});queueMicrotask(apply)})();</scr`+`ipt>`;
-  return html.replace('</body>',patch+'</body>');
+function reverseBits(x,n){let r=0;for(let i=0;i<n;i++){r=(r<<1)|(x&1);x>>>=1}return r}
+function BitReader(data,start,end){this.d=data;this.i=start||0;this.end=end==null?data.length:end;this.buf=0;this.n=0}
+BitReader.prototype.bits=function(n){while(this.n<n){if(this.i>=this.end)throw Error('EOF deflate');this.buf|=this.d[this.i++]<<this.n;this.n+=8}const mask=n===32?0xffffffff:(1<<n)-1,v=this.buf&mask;this.buf>>>=n;this.n-=n;return v};
+BitReader.prototype.align=function(){this.buf=0;this.n=0};
+function huffman(lengths){let max=0;const count=[];for(const l of lengths){if(l){count[l]=(count[l]||0)+1;if(l>max)max=l}}const next=[];let code=0;count[0]=0;for(let bits=1;bits<=max;bits++){code=(code+(count[bits-1]||0))<<1;next[bits]=code}const maps=Array(max+1);for(let i=0;i<=max;i++)maps[i]=Object.create(null);for(let sym=0;sym<lengths.length;sym++){const l=lengths[sym];if(!l)continue;const c=next[l]++;maps[l][reverseBits(c,l)]=sym}return {max,maps}}
+function sym(br,h){let c=0;for(let l=1;l<=h.max;l++){c|=br.bits(1)<<(l-1);const v=h.maps[l][c];if(v!==undefined)return v}throw Error('bad huffman')}
+const LEN_BASE=[3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258];
+const LEN_EXT =[0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0];
+const DIST_BASE=[1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577];
+const DIST_EXT =[0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13];
+function fixed(){const l=new Array(288);for(let i=0;i<=143;i++)l[i]=8;for(let i=144;i<=255;i++)l[i]=9;for(let i=256;i<=279;i++)l[i]=7;for(let i=280;i<=287;i++)l[i]=8;return [huffman(l),huffman(new Array(32).fill(5))]}
+const FIX=fixed();
+function dynamic(br){const hlit=br.bits(5)+257,hdist=br.bits(5)+1,hclen=br.bits(4)+4,order=[16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15],cl=new Array(19).fill(0);for(let i=0;i<hclen;i++)cl[order[i]]=br.bits(3);const ch=huffman(cl),lens=[];while(lens.length<hlit+hdist){const s=sym(br,ch);if(s<=15)lens.push(s);else if(s===16){if(!lens.length)throw Error('repeat without prev');const n=br.bits(2)+3,p=lens[lens.length-1];for(let j=0;j<n;j++)lens.push(p)}else if(s===17){const n=br.bits(3)+3;for(let j=0;j<n;j++)lens.push(0)}else if(s===18){const n=br.bits(7)+11;for(let j=0;j<n;j++)lens.push(0)}else throw Error('bad clen')}return [huffman(lens.slice(0,hlit)),huffman(lens.slice(hlit,hlit+hdist))]}
+function inflateRaw(data,start,end){const br=new BitReader(data,start,end),out=[];let final=0;while(!final){final=br.bits(1);const type=br.bits(2);if(type===0){br.align();if(br.i+4>br.end)throw Error('stored header');const len=data[br.i]|data[br.i+1]<<8,nlen=data[br.i+2]|data[br.i+3]<<8;br.i+=4;if(((len^0xffff)&0xffff)!==nlen)throw Error('stored len');for(let j=0;j<len;j++)out.push(data[br.i++]);continue}if(type===3)throw Error('reserved block');const [lh,dh]=type===1?FIX:dynamic(br);for(;;){const s=sym(br,lh);if(s<256){out.push(s);continue}if(s===256)break;if(s<257||s>285)throw Error('bad len code '+s);const li=s-257;const len=LEN_BASE[li]+(LEN_EXT[li]?br.bits(LEN_EXT[li]):0);const ds=sym(br,dh);if(ds>29)throw Error('bad dist code');const dist=DIST_BASE[ds]+(DIST_EXT[ds]?br.bits(DIST_EXT[ds]):0);if(dist>out.length)throw Error('distance too far');for(let j=0;j<len;j++)out.push(out[out.length-dist])}}
+return new Uint8Array(out)}
+function gunzip(data){let i=0;if(data[i++]!==31||data[i++]!==139||data[i++]!==8)throw Error('not gzip');const flg=data[i++];i+=6;if(flg&4){const xlen=data[i]|data[i+1]<<8;i+=2+xlen}if(flg&8)while(data[i++]);if(flg&16)while(data[i++]);if(flg&2)i+=2;const end=data.length-8;const out=inflateRaw(data,i,end);const isize=(data[end+4]|data[end+5]<<8|data[end+6]<<16|data[end+7]<<24)>>>0;if((out.length>>>0)!==isize)throw Error('size mismatch '+out.length+' '+isize);return out}
+function utf8(u){let s='',i=0;while(i<u.length){let c=u[i++];if(c<128){s+=String.fromCharCode(c);continue}if((c&224)===192){s+=String.fromCharCode(((c&31)<<6)|(u[i++]&63));continue}if((c&240)===224){s+=String.fromCharCode(((c&15)<<12)|((u[i++]&63)<<6)|(u[i++]&63));continue}let cp=((c&7)<<18)|((u[i++]&63)<<12)|((u[i++]&63)<<6)|(u[i++]&63);cp-=0x10000;s+=String.fromCharCode(0xD800+(cp>>10),0xDC00+(cp&1023))}return s}
+
+(()=>{
+const PART_COUNT=14,VERSION='4.0.5';
+const status=document.getElementById('status'),bar=document.getElementById('bar'),error=document.getElementById('error'),retry=document.getElementById('retry');
+const paths=Array.from({length:PART_COUNT},(_,i)=>`parts/p${String(i).padStart(2,'0')}.txt?v=405`);
+let finished=false;
+function fail(msg,e){if(finished)return;finished=true;console.error(e||msg);bar.style.display='none';status.textContent='No se pudo iniciar ZORYVO';error.textContent=msg;error.style.display='block';retry.style.display='block'}
+function fromBase64(s){const raw=atob(s.replace(/\s+/g,'')),out=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i);return out}
+function patchApp(html){
+ html=html.replace("const APP_VERSION='4.0.3';",`const APP_VERSION='${VERSION}';`);
+ html=html.replace('ZORYVO V4.0.3 — Plataforma auditada','ZORYVO V4.0.5 — Plataforma directa');
+ const patch=`<script>(()=>{const TARGET='go:ZORYVO';function apply(){const node=document.querySelector('[data-task="ad"],.appcreator-referral');if(!node)return;if(node.tagName==='A'){node.setAttribute('href',TARGET);node.removeAttribute('data-task');node.setAttribute('data-appcreator-referral',TARGET);node.classList.add('appcreator-referral');node.textContent='Ver';return}const a=document.createElement('a');a.className=(node.className||'btn primary')+' appcreator-referral';a.setAttribute('href',TARGET);a.setAttribute('data-appcreator-referral',TARGET);a.setAttribute('aria-label','Ver anuncio en AppCreator24');a.textContent='Ver';node.replaceWith(a)}const observer=new MutationObserver(apply);observer.observe(document.documentElement,{childList:true,subtree:true});document.addEventListener('DOMContentLoaded',apply,{once:true});queueMicrotask(apply)})();</scr`+`ipt>`;
+ return html.replace('</body>',patch+'</body>');
 }
 async function boot(){
-  error.style.display='none';retry.style.display='none';bar.style.display='block';
-  status.textContent='Cargando ZORYVO…';
-  try{
-    const responses=await Promise.all(paths.map(p=>fetch(p,{cache:'no-cache'})));
-    responses.forEach((r,i)=>{if(!r.ok)throw new Error(`No se pudo cargar ${paths[i]} (${r.status})`)});
-    const chunks=await Promise.all(responses.map(r=>r.text()));
-    status.textContent='Verificando la aplicación…';
-    const bytes=fromBase64(chunks.join(''));
-    let html;
-    try{html=await gunzipNative(bytes)}catch(e){html=await gunzipFallback(bytes)}
-    if(!html.includes('<!doctype html>')&&!html.includes('<!DOCTYPE html>'))throw new Error('El documento reconstruido no es HTML válido');
-    if(!html.includes('ZORYVO')||!html.includes("const APP_VERSION='4.0.3'"))throw new Error('La versión publicada no coincide con ZORYVO V4.0.3');
-    html=injectAppCreator24Referral(html);
-    status.textContent='Abriendo ZORYVO…';
-    document.open();document.write(html);document.close();
-  }catch(e){
-    console.error(e);bar.style.display='none';status.textContent='No se pudo iniciar ZORYVO';
-    error.textContent='La aplicación no pudo cargarse correctamente. Comprueba tu conexión y vuelve a intentarlo.';
-    error.style.display='block';retry.style.display='block';
-  }
+ finished=false;error.style.display='none';retry.style.display='none';bar.style.display='block';status.textContent='Cargando ZORYVO…';
+ const watchdog=setTimeout(()=>fail('La carga tardó demasiado. Pulsa Reintentar para volver a iniciar.'),18000);
+ try{
+  const rs=await Promise.all(paths.map(p=>fetch(p,{cache:'no-store'})));
+  rs.forEach((r,i)=>{if(!r.ok)throw Error(`No se pudo cargar ${paths[i]} (${r.status})`)});
+  const chunks=await Promise.all(rs.map(r=>r.text()));
+  status.textContent='Preparando la aplicación…';
+  const bytes=fromBase64(chunks.join(''));
+  const html=patchApp(utf8(gunzip(bytes)));
+  if(!html.includes('<!DOCTYPE html>')&&!html.includes('<!doctype html>'))throw Error('Documento reconstruido inválido');
+  if(!html.includes("const APP_VERSION='4.0.5'"))throw Error('Versión incorrecta');
+  if(!html.includes("TARGET='go:ZORYVO'"))throw Error('Falta go:ZORYVO');
+  clearTimeout(watchdog);finished=true;status.textContent='Abriendo ZORYVO…';document.open();document.write(html);document.close();
+ }catch(e){clearTimeout(watchdog);fail('No se pudo preparar la aplicación. Verifica tu conexión y pulsa Reintentar.',e)}
 }
-retry.addEventListener('click',boot);
-boot();
+retry.addEventListener('click',boot);boot();
 })();
-</script>
-</body>
-</html>
+</script></body></html>
