@@ -6,22 +6,32 @@
 <meta name="theme-color" content="#06080d">
 <meta name="color-scheme" content="dark">
 <meta name="description" content="ZORYVO — plataforma de historias verticales y episodios cortos.">
-<title>ZORYVO V4.0.6</title>
-<link rel="icon" type="image/webp" href="assets/zoryvo-logo.webp?v=406-direct2">
-<link rel="stylesheet" href="assets/app1.css?v=406-direct2">
-<link rel="stylesheet" href="assets/app2.css?v=406-direct2">
-<link rel="stylesheet" href="assets/app3.css?v=406-direct2">
-<link rel="stylesheet" href="assets/app4.css?v=406-direct2">
-<link rel="stylesheet" href="assets/restore1.css?v=406-direct2">
-<link rel="stylesheet" href="assets/restore2.css?v=406-direct2">
+<title>ZORYVO V4.0.7</title>
+<link rel="icon" type="image/svg+xml" href="assets/zoryvo-logo-compatible.svg?v=407">
+<link rel="stylesheet" href="assets/app1.css?v=407">
+<link rel="stylesheet" href="assets/app2.css?v=407">
+<link rel="stylesheet" href="assets/app3.css?v=407">
+<link rel="stylesheet" href="assets/app4.css?v=407">
+<link rel="stylesheet" href="assets/restore1.css?v=407">
+<link rel="stylesheet" href="assets/restore2.css?v=407">
 </head>
 <body>
-<script src="runtime/shell1.js?v=406-direct2"></script>
-<script src="runtime/shell2.js?v=406-direct2"></script>
-<script src="runtime/shell3.direct.js?v=406-direct2"></script>
-<script src="assets/app1.js?v=406-direct2"></script>
-<script src="assets/app2.js?v=406-direct2"></script>
-<script src="assets/app3.js?v=406-direct2"></script>
-<script src="assets/app4.js?v=406-direct2"></script>
+<script src="runtime/shell1.js?v=407"></script>
+<script src="runtime/shell2.js?v=407"></script>
+<script src="runtime/shell3.direct.js?v=407"></script>
+<script>
+(function(){
+  var primary='assets/zoryvo-logo-compatible.svg?v=407';
+  var fallback='assets/logo-fallback.svg?v=407';
+  document.querySelectorAll('[data-zoryvo-logo]').forEach(function(img){
+    img.onerror=function(){img.onerror=null;img.src=fallback};
+    img.src=primary;
+  });
+})();
+</script>
+<script src="assets/app1.js?v=407"></script>
+<script src="assets/app2.js?v=407"></script>
+<script src="assets/app3.js?v=407"></script>
+<script src="assets/app4.js?v=407"></script>
 </body>
 </html>
