@@ -1,0 +1,64 @@
+name: Publish ZORYVO direct
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'parts/**'
+      - '.github/workflows/publish-direct.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rebuild direct HTML
+        shell: bash
+        run: |
+          cat parts/p*.txt > app.b64
+          base64 -d app.b64 > app.html.gz
+          gunzip -c app.html.gz > direct.html
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('direct.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace("const APP_VERSION='4.0.3';","const APP_VERSION='4.0.5';")
+          s=s.replace('ZORYVO V4.0.3 — Plataforma auditada','ZORYVO V4.0.5 — Plataforma directa')
+          old="$('#taskList').innerHTML=tasks.map(task=>`<div class=\"task\"><div class=\"task-icon\">${icon(task.icon)}</div><div><b>${esc(task.title)}</b><span>${esc(task.sub)}</span></div><button type=\"button\" class=\"btn ${task.ready?'primary':'secondary'}\" data-task=\"${task.id}\" ${!task.ready||task.claimed?'disabled':''}>${esc(task.action)}</button></div>`).join('');"
+          new="$('#taskList').innerHTML=tasks.map(task=>`<div class=\"task\"><div class=\"task-icon\">${icon(task.icon)}</div><div><b>${esc(task.title)}</b><span>${esc(task.sub)}</span></div>${task.id==='ad'?`<a class=\"btn primary appcreator-referral\" href=\"go:ZORYVO\" aria-label=\"Ver anuncio en AppCreator24\">Ver</a>`:`<button type=\"button\" class=\"btn ${task.ready?'primary':'secondary'}\" data-task=\"${task.id}\" ${!task.ready||task.claimed?'disabled':''}>${esc(task.action)}</button>`}</div>`).join('');"
+          if old not in s:
+              raise SystemExit('No se encontró el bloque de tareas esperado')
+          s=s.replace(old,new)
+          s=s.replace("if(id==='ad'){startAd('reward');return}","if(id==='ad'){window.location.href='go:ZORYVO';return}")
+          if 'href=\"go:ZORYVO\"' not in s:
+              raise SystemExit('No se insertó go:ZORYVO')
+          if any(x in s for x in ['PART_COUNT','DecompressionStream','fflate','parts/p']):
+              raise SystemExit('El HTML directo contiene rastros del loader')
+          p.write_text(s,encoding='utf-8')
+          PY
+          grep -q "const APP_VERSION='4.0.5'" direct.html
+          grep -q 'href="go:ZORYVO"' direct.html
+          test -s direct.html
+
+      - name: Publish clean gh-pages branch
+        shell: bash
+        run: |
+          cp direct.html /tmp/index.html
+          git config user.name "NovaVision GT"
+          git config user.email "novaprime.gt@gmail.com"
+          git fetch origin gh-pages
+          git checkout gh-pages
+          git rm -rf .
+          cp /tmp/index.html index.html
+          touch .nojekyll
+          git add index.html .nojekyll
+          git commit -m "Publish ZORYVO V4.0.5 direct for AppCreator24"
+          git push origin gh-pages
