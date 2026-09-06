@@ -16,7 +16,23 @@
     }
   }
 
+  function upgradeRewardsLink(){
+    const old = document.querySelector('.nav-btn[data-view="rewards"]');
+    if(!old || old.tagName === 'A') return;
+    const link = document.createElement('a');
+    link.className = old.className;
+    link.dataset.view = 'rewards';
+    link.href = REWARDS_URL;
+    link.innerHTML = old.innerHTML.replace('Premios','Recompensas');
+    link.setAttribute('aria-label','Abrir página de recompensas');
+    if(old.hasAttribute('aria-current')) link.setAttribute('aria-current',old.getAttribute('aria-current'));
+    old.replaceWith(link);
+  }
+
   document.addEventListener('click', event => {
+    if(page === 'rewards' && event.target.closest?.('#topProfileButton')){
+      event.preventDefault();event.stopImmediatePropagation();routeTo('profile');return;
+    }
     const nav = event.target.closest?.('[data-view]');
     if(!nav) return;
     const view = nav.dataset.view;
@@ -56,9 +72,10 @@
     if(typeof state === 'undefined') return;
     ensureHomeWallet();
     ensureRewardStats();
+    upgradeRewardsLink();
     const today = typeof localDateKey === 'function' ? localDateKey() : '';
     const claimed = !!(state.reward && state.reward.lastClaim === today);
-    const pairs = [['homeCoins',state.coins],['homePasses',state.freePasses],['homeStreak',state.reward?.streak||0],['rewardPasses',state.freePasses],['rewardStreak',state.reward?.streak||0],['rewardToday',claimed?'Recibida':'Disponible']];
+    const pairs = [['homeCoins',state.coins],['homePasses',state.freePasses],['homeStreak',(state.reward&&state.reward.streak)||0],['rewardPasses',state.freePasses],['rewardStreak',(state.reward&&state.reward.streak)||0],['rewardToday',claimed?'Recibida':'Disponible']];
     pairs.forEach(([id,value]) => { const el=document.getElementById(id); if(el) el.textContent=String(value); });
   }
 
@@ -73,11 +90,7 @@
 
   window.addEventListener('storage', event => {
     if(event.key !== 'zoryvo_state_v4' || typeof loadState !== 'function') return;
-    try{
-      state = loadState();
-      if(typeof renderAll === 'function') renderAll();
-      if(page === 'rewards' && typeof switchView === 'function') switchView('rewards');
-    }catch{}
+    try{ state = loadState(); if(typeof renderAll === 'function') renderAll(); if(page === 'rewards' && typeof switchView === 'function') switchView('rewards'); }catch{}
   });
   window.addEventListener('pageshow', syncSharedState);
   syncSharedState();
