@@ -16,27 +16,47 @@
     }
   }
 
-  function upgradeRewardsLink(){
-    const old = document.querySelector('.nav-btn[data-view="rewards"]');
-    if(!old || old.tagName === 'A') return;
+  function navLink(view, href, current=false){
+    const old = document.querySelector(`.bottom-nav .nav-btn[data-view="${view}"], .bottom-nav .nav-btn[data-page-link="${view}"]`);
+    if(!old) return null;
+    if(old.tagName === 'A'){
+      old.href = href;
+      old.dataset.pageLink = view;
+      delete old.dataset.view;
+      old.classList.toggle('active', current);
+      if(current) old.setAttribute('aria-current','page'); else old.removeAttribute('aria-current');
+      return old;
+    }
     const link = document.createElement('a');
     link.className = old.className;
-    link.dataset.view = 'rewards';
-    link.href = REWARDS_URL;
-    link.innerHTML = old.innerHTML.replace('Premios','Recompensas');
-    link.setAttribute('aria-label','Abrir página de recompensas');
-    if(old.hasAttribute('aria-current')) link.setAttribute('aria-current',old.getAttribute('aria-current'));
+    link.href = href;
+    link.dataset.pageLink = view;
+    link.innerHTML = old.innerHTML;
+    if(view === 'rewards') link.innerHTML = link.innerHTML.replace('Premios','Recompensas');
+    link.setAttribute('aria-label', view === 'rewards' ? 'Abrir página de recompensas' : 'Abrir Home de ZORYVO');
+    if(current){ link.classList.add('active'); link.setAttribute('aria-current','page'); }
+    else{ link.classList.remove('active'); link.removeAttribute('aria-current'); }
     old.replaceWith(link);
+    return link;
+  }
+
+  function upgradePortalLinks(){
+    if(page === 'rewards'){
+      navLink('home', HOME_URL, false);
+      navLink('rewards', REWARDS_URL, true);
+    }else{
+      navLink('rewards', REWARDS_URL, false);
+    }
   }
 
   document.addEventListener('click', event => {
     if(page === 'rewards' && event.target.closest?.('#topProfileButton')){
-      event.preventDefault();event.stopImmediatePropagation();routeTo('profile');return;
+      event.preventDefault(); event.stopImmediatePropagation(); routeTo('profile'); return;
     }
-    const nav = event.target.closest?.('[data-view]');
+    const nav = event.target.closest?.('.nav-btn[data-view]');
     if(!nav) return;
     const view = nav.dataset.view;
-    if(view === 'rewards' || page === 'rewards'){
+    if(page === 'rewards'){
       event.preventDefault();
       event.stopImmediatePropagation();
       routeTo(view);
@@ -52,8 +72,20 @@
     wrap.id = 'homeWalletSummary';
     wrap.className = 'home-wallet-summary';
     wrap.setAttribute('aria-label','Resumen de recompensas');
-    wrap.innerHTML = `<div class="home-wallet-head"><div><span class="wallet-kicker">TU CUENTA ZORYVO</span><h2>Saldo y recompensas</h2></div><a class="wallet-open" href="${REWARDS_URL}">${iconUse('i-gift')}<span>Ver recompensas</span></a></div><div class="wallet-summary-grid"><div class="wallet-summary-item">${iconUse('i-coins')}<div><b id="homeCoins">0</b><span>Monedas</span></div></div><div class="wallet-summary-item">${iconUse('i-ticket')}<div><b id="homePasses">0</b><span>Pases</span></div></div><div class="wallet-summary-item">${iconUse('i-activity')}<div><b id="homeStreak">0</b><span>Racha</span></div></div></div>`;
+    wrap.innerHTML = `<div class="home-wallet-head"><div><span class="wallet-kicker">TU CUENTA ZORYVO</span><h2>Saldo y recompensas</h2><p>Monedas y pases sincronizados con tu página de Recompensas.</p></div><a class="wallet-open" href="${REWARDS_URL}">${iconUse('i-gift')}<span>Ver recompensas</span></a></div><div class="wallet-summary-grid"><div class="wallet-summary-item">${iconUse('i-coins')}<div><b id="homeCoins">0</b><span>Monedas</span></div></div><div class="wallet-summary-item">${iconUse('i-ticket')}<div><b id="homePasses">0</b><span>Pases</span></div></div><div class="wallet-summary-item">${iconUse('i-activity')}<div><b id="homeStreak">0</b><span>Racha</span></div></div></div>`;
     hero.insertAdjacentElement('afterend', wrap);
+  }
+
+  function ensureRewardsHeader(){
+    if(page !== 'rewards') return;
+    const view = document.querySelector('#view-rewards');
+    const hero = view?.querySelector('.reward-hero');
+    if(!view || !hero || document.querySelector('#rewardsPortalHead')) return;
+    const head = document.createElement('div');
+    head.id = 'rewardsPortalHead';
+    head.className = 'rewards-portal-head';
+    head.innerHTML = `<div><span>PÁGINA INDEPENDIENTE</span><b>Centro de recompensas</b></div><a href="${HOME_URL}" class="rewards-home-link">${iconUse('i-home')}<span>Home</span></a>`;
+    hero.insertAdjacentElement('beforebegin', head);
   }
 
   function ensureRewardStats(){
@@ -71,8 +103,9 @@
   function syncSharedState(){
     if(typeof state === 'undefined') return;
     ensureHomeWallet();
+    ensureRewardsHeader();
     ensureRewardStats();
-    upgradeRewardsLink();
+    upgradePortalLinks();
     const today = typeof localDateKey === 'function' ? localDateKey() : '';
     const claimed = !!(state.reward && state.reward.lastClaim === today);
     const pairs = [['homeCoins',state.coins],['homePasses',state.freePasses],['homeStreak',(state.reward&&state.reward.streak)||0],['rewardPasses',state.freePasses],['rewardStreak',(state.reward&&state.reward.streak)||0],['rewardToday',claimed?'Recibida':'Disponible']];
@@ -90,7 +123,7 @@
 
   window.addEventListener('storage', event => {
     if(event.key !== 'zoryvo_state_v4' || typeof loadState !== 'function') return;
-    try{ state = loadState(); if(typeof renderAll === 'function') renderAll(); if(page === 'rewards' && typeof switchView === 'function') switchView('rewards'); }catch{}
+    try{ state = loadState(); if(typeof renderAll === 'function') renderAll(); if(page === 'rewards' && typeof switchView === 'function') switchView('rewards'); syncSharedState(); }catch{}
   });
   window.addEventListener('pageshow', syncSharedState);
   syncSharedState();
@@ -99,6 +132,7 @@
     if(page === 'rewards'){
       switchView('rewards');
       document.title = 'Recompensas · ZORYVO';
+      upgradePortalLinks();
     }else{
       let target = '';
       try{ target = sessionStorage.getItem('zoryvo_target_view') || ''; sessionStorage.removeItem('zoryvo_target_view'); }catch{}
