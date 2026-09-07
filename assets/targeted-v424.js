@@ -1,7 +1,7 @@
 'use strict';
-/* ZORYVO V4.2.5 — SOLO corrección definitiva del logo. */
+/* ZORYVO V4.2.6 — SOLO corrección del logo con PNG directo. */
 (() => {
-  const LOGO='assets/zoryvo-logo-exact.svg?v=425';
+  const LOGO='assets/zoryvo-logo.png?v=426';
 
   function applyLogo(){
     document.querySelectorAll('.zv42-logo').forEach(el=>{
