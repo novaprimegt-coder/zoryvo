@@ -1,0 +1,100 @@
+/* ZORYVO V4.1 — two-page experience */
+a.nav-btn{appearance:none;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.header-logo-wrap,.avatar{background:transparent!important;border:0!important;box-shadow:none!important}
+.header-brand-logo,.brandlogo-image{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  mix-blend-mode:normal!important;
+  filter:drop-shadow(0 0 12px rgba(35,214,255,.18));
+}
+.header-brand-logo{max-width:330px;object-fit:contain}
+.shared-wallet-panel{
+  margin:14px 15px 2px;
+  padding:14px;
+  border:1px solid rgba(105,224,255,.12);
+  border-radius:22px;
+  background:linear-gradient(145deg,rgba(13,23,34,.96),rgba(9,15,24,.96));
+  box-shadow:0 18px 46px rgba(0,0,0,.19),inset 0 1px 0 rgba(255,255,255,.03);
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;
+  gap:10px;
+  align-items:stretch;
+}
+.shared-wallet-copy{grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.shared-wallet-copy span{display:block;color:#7f91a8;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.shared-wallet-copy b{font-size:15px;color:#effaff}
+.wallet-metric{
+  min-width:0;
+  padding:12px 13px;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:16px;
+  background:rgba(255,255,255,.025);
+}
+.wallet-metric span{display:block;color:#7f91a8;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.wallet-metric b{display:flex;align-items:center;gap:7px;margin-top:6px;font-size:19px;color:#fff}
+.wallet-metric .ui-icon{width:17px;height:17px;color:#76e9ff}
+.wallet-metric.pass .ui-icon{color:#ffe18b}
+.wallet-open-link{
+  min-width:126px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:0 14px;
+  border:1px solid rgba(25,216,255,.20);
+  border-radius:16px;
+  background:linear-gradient(135deg,rgba(25,216,255,.15),rgba(56,112,255,.12));
+  color:#9cf0ff;
+  text-decoration:none;
+  font-size:10px;
+  font-weight:900;
+}
+.wallet-open-link .ui-icon{width:17px;height:17px}
+.page-rewards #view-rewards{max-width:980px;margin:0 auto;padding-top:18px}
+.page-rewards .reward-hero{
+  position:relative;
+  overflow:hidden;
+  border-radius:30px;
+  background:
+    radial-gradient(circle at 86% 8%,rgba(255,211,92,.14),transparent 28%),
+    linear-gradient(145deg,#15120d,#1d170d 58%,#11100e);
+  border:1px solid rgba(255,220,126,.14);
+  box-shadow:0 26px 70px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.04);
+}
+.page-rewards .reward-hero::after{
+  content:'ZORYVO';
+  position:absolute;
+  right:-20px;
+  top:-10px;
+  font-weight:1000;
+  font-size:72px;
+  letter-spacing:-5px;
+  color:rgba(255,255,255,.025);
+  pointer-events:none;
+}
+.rewards-page-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 15px 12px}
+.rewards-page-toolbar b{font-size:20px}
+.rewards-page-toolbar span{display:block;margin-top:3px;color:#8290a4;font-size:9px}
+.rewards-home-link{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(255,255,255,.035);color:#dce9f7;text-decoration:none;font-size:9px;font-weight:850}
+.rewards-home-link .ui-icon{width:16px;height:16px;color:#6fe8ff}
+.page-rewards .reward-wallet{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:stretch}
+.page-rewards .reward-wallet .wallet-copy{min-width:0;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06)}
+.page-rewards .reward-wallet .wallet-copy b{font-size:17px}
+.wallet-passes b{color:#ffe18b}
+.page-rewards .wallet-action{min-width:132px;height:auto}
+.page-rewards .tasks{gap:11px}
+.page-rewards .task{border-radius:19px}
+.page-rewards .task .appcreator-referral{min-width:70px}
+@media(max-width:620px){
+  .shared-wallet-panel{grid-template-columns:1fr 1fr}
+  .wallet-open-link{grid-column:1/-1;min-height:44px}
+  .page-rewards .reward-wallet{grid-template-columns:1fr 1fr}
+  .page-rewards .wallet-action{grid-column:1/-1;min-height:46px}
+}
+@media(max-width:390px){
+  .shared-wallet-panel{margin-left:12px;margin-right:12px;padding:12px}
+  .wallet-metric b{font-size:17px}
+  .header-brand-logo{max-width:250px}
+  .rewards-page-toolbar{margin-left:12px;margin-right:12px}
+}
