@@ -1,0 +1,102 @@
+/* ZORYVO V4.2.4 — SOLO los tres ajustes solicitados */
+
+/* 1) RECOMPENSAS: elimina únicamente la huella vertical del shell oculto. */
+html.zv42[data-zoryvo-page="rewards"] #app,
+html.zv42[data-zoryvo-page="rewards"] #app > .shell{
+  min-height:0!important;
+  height:0!important;
+  margin:0!important;
+  padding:0!important;
+}
+
+/* 2) LOGO: sin caja/fondo; el PNG exacto lo inyecta targeted-v424.js. */
+.zv42-logo,
+.header-logo-wrap{
+  background-color:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  background-repeat:no-repeat!important;
+  background-position:left center!important;
+  background-size:contain!important;
+}
+.header-logo-wrap > .header-brand-logo[data-zoryvo-logo]{
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  object-fit:contain!important;
+  object-position:left center!important;
+}
+
+/* 3) DESCUBRIR: solo compacta y refina el bloque de búsqueda/filtros. */
+#view-discover .discover-panel{
+  padding:14px!important;
+  border-radius:22px!important;
+  gap:10px!important;
+}
+#view-discover .searchbox{
+  min-height:58px!important;
+  height:58px!important;
+  padding:0 14px!important;
+  border-radius:18px!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.025)!important;
+}
+#view-discover .searchbox .search-leading{
+  width:24px!important;
+  height:24px!important;
+  margin-right:10px!important;
+}
+#view-discover .searchbox input{
+  min-height:0!important;
+  height:56px!important;
+  padding:0!important;
+  font-size:16px!important;
+  line-height:1.2!important;
+}
+#view-discover .searchbox input::placeholder{font-size:16px!important;}
+#view-discover .search-clear{
+  width:36px!important;
+  min-width:36px!important;
+  height:36px!important;
+  border-radius:12px!important;
+}
+#view-discover .search-tools{
+  margin-top:10px!important;
+  gap:10px!important;
+  align-items:center!important;
+}
+#view-discover .result-indicator{
+  gap:7px!important;
+  font-size:13px!important;
+}
+#view-discover .result-indicator .ui-icon{
+  width:18px!important;
+  height:18px!important;
+}
+#view-discover .sort-control{
+  min-height:42px!important;
+  height:42px!important;
+  padding:0 12px!important;
+  gap:7px!important;
+  border-radius:14px!important;
+  font-size:12px!important;
+}
+#view-discover .sort-select{font-size:14px!important;}
+#view-discover .discover-chips{
+  margin-top:10px!important;
+  gap:8px!important;
+}
+#view-discover .discover-chips .chip{
+  min-height:42px!important;
+  height:42px!important;
+  padding:0 18px!important;
+  font-size:14px!important;
+}
+
+@media(max-width:520px){
+  #view-discover .discover-panel{padding:12px!important;border-radius:19px!important;}
+  #view-discover .searchbox{min-height:54px!important;height:54px!important;padding:0 12px!important;border-radius:16px!important;}
+  #view-discover .searchbox input{height:52px!important;font-size:15px!important;}
+  #view-discover .searchbox input::placeholder{font-size:15px!important;}
+  #view-discover .sort-control{min-height:40px!important;height:40px!important;}
+  #view-discover .discover-chips .chip{min-height:40px!important;height:40px!important;padding:0 15px!important;font-size:13px!important;}
+}
